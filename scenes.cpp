@@ -474,6 +474,39 @@ void setupSceneCornellBoxGlassSphere(float defocusAngle, bool isGlassSphereALigh
     addBox({  26.5f,   .0f, -29.5f }, {  43.0f, 33.0f, -46.0f}, white, 0, -18, 0);
 }
 
+void setupSceneCornellBoxMetalBoxGlassSphere()
+{
+    // Make everything 10x smaller than in article so its easier to navigate...
+    cameraData = { 
+        .lookfrom = { 27.8f, 27.8f, 80.0f }, 
+        .lookat = { 27.8f, 27.8f, 0 }, 
+        .backgroundColor = { 0, 0, 0 }, 
+        .vfov = 40, 
+        .focusDist = 10.0f, 
+        .defocusAngle = 0.0f, 
+        .samplesPerPixel = 16,
+        .doStratify = false
+    };
+
+    MaterialData red   = { .albedo = { .65f, .05f, .05f}, .type = MATERIAL_TYPE_LAMBERTIAN };
+    MaterialData white = { .albedo = { .73f, .73f, .73f}, .type = MATERIAL_TYPE_LAMBERTIAN };
+    MaterialData green = { .albedo = { .12f, .45f, .15f}, .type = MATERIAL_TYPE_LAMBERTIAN };
+    MaterialData light = { .albedo = {   15,   15,   15}, .type = MATERIAL_TYPE_DIFFUSE_LIGHT };
+    MaterialData aluminum = { .albedo = { 0.8f, 0.85f, 0.88f}, .fuzz = 0.0f, .type = MATERIAL_TYPE_METAL };
+    MaterialData glass = { .albedo = { 1, 1, 1}, .fuzz = 0.0f, .refractionIndex = 1.5f, .type = MATERIAL_TYPE_DIELECTRIC };
+
+    addQuad({ 55.5f,   .0f,    .0f }, {    .0f, 55.5f, .0f }, { .0f,   .0f, -55.5f }, green);
+    addQuad({   .0f,   .0f,    .0f }, {    .0f, 55.5f, .0f }, { .0f,   .0f, -55.5f },   red);
+    addQuad({ 34.3f, 55.4f, -33.2f }, { -13.0f,   .0f, .0f }, { .0f,   .0f,  10.5f }, light, true);
+    addQuad({   .0f,   .0f,    .0f }, {  55.5f,   .0f, .0f }, { .0f,   .0f, -55.5f }, white);
+    addQuad({ 55.5f, 55.5f, -55.5f }, { -55.5f,   .0f, .0f }, { .0f,   .0f,  55.5f }, white);
+    addQuad({   .0f,   .0f, -55.5f }, {  55.5f,   .0f, .0f }, { .0f, 55.5f,    .0f }, white);
+
+
+    addSphere({19,9,-19}, 9, glass, true);
+    addBox({  26.5f,   .0f, -29.5f }, {  43.0f, 33.0f, -46.0f}, aluminum, 0, -18, 0, true);
+}
+
 void setupSceneFinal2(float defocusAngle)
 {
     cameraData = {
@@ -544,7 +577,7 @@ void setupSceneFinal2(float defocusAngle)
 void SetupNextScene()
 {
     static UINT scene = 3;
-    scene = (scene + 1) % 15;
+    scene = (scene + 1) % 16;
 
     // Reset.
     proceduralInstances.clear();
@@ -568,6 +601,7 @@ void SetupNextScene()
     case 11: setupSceneCornellBoxMetal(0.0f); break;
     case 12: setupSceneCornellBoxGlassSphere(0.0f, false); break;
     case 13: setupSceneCornellBoxGlassSphere(0.0f, true); break;
-    case 14: setupSceneFinal2(0.0f); break;
+    case 14: setupSceneCornellBoxMetalBoxGlassSphere(); break;
+    case 15: setupSceneFinal2(0.0f); break;
     }
 }
