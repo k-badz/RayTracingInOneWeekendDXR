@@ -755,7 +755,7 @@ void InitPipeline()
     device->CreateStateObject(&desc, IID_PPV_ARGS(&pso));
 
     auto idDesc = BASIC_BUFFER_DESC;
-    idDesc.Width = 14 * D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT;
+    idDesc.Width = 13 * D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT;
     device->CreateCommittedResource(&UPLOAD_HEAP, D3D12_HEAP_FLAG_NONE, &idDesc,
         D3D12_RESOURCE_STATE_COMMON, nullptr,
         IID_PPV_ARGS(&shaderIDs));
@@ -855,7 +855,7 @@ void Render()
                                                  .SizeInBytes = D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES},
                                              .HitGroupTable = {
                                                  .StartAddress = shaderIDs->GetGPUVirtualAddress() + 2 * D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT,
-                                                 .SizeInBytes = D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES * 4,
+                                                 .SizeInBytes = D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES * 22,
                                                  .StrideInBytes = D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT},
                                              .Width = static_cast<UINT>(rtDesc.Width),
                                              .Height = rtDesc.Height,
