@@ -653,7 +653,7 @@ void InitRootSignature()
                                                         .RegisterSpace = 0} }
                                     };
 
-    D3D12_ROOT_SIGNATURE_DESC desc = {.NumParameters = std::size(params),
+    D3D12_ROOT_SIGNATURE_DESC desc = {.NumParameters = (UINT)std::size(params),
                                       .pParameters = params };
 
     ID3DBlob* blob;
@@ -750,7 +750,7 @@ void InitPipeline()
                                          };
 
     D3D12_STATE_OBJECT_DESC desc = {.Type = D3D12_STATE_OBJECT_TYPE_RAYTRACING_PIPELINE,
-                                    .NumSubobjects = std::size(subobjects),
+                                    .NumSubobjects = (UINT)std::size(subobjects),
                                     .pSubobjects = subobjects };
     device->CreateStateObject(&desc, IID_PPV_ARGS(&pso));
 

@@ -84,14 +84,14 @@ float PI()
     return 3.1415926535897932385f;
 }
 
-bool IsNaN(float x)
-{
-    return (asuint(x) & 0x7fffffff) > 0x7f800000;
-}
-
 bool HasNaN(float3 vec)
 {
-    return IsNaN(vec.x) || IsNaN(vec.y) || IsNaN(vec.z);
+    return isnan(vec.x) || isnan(vec.y) || isnan(vec.z);
+}
+
+bool HasInf(float3 vec)
+{
+    return isinf(vec.x) || isinf(vec.y) || isinf(vec.z);
 }
 
 // https://github.com/NVIDIAGameWorks/GettingStartedWithRTXRayTracing/blob/master/DXR-RayTracingInOneWeekend/Data/RayTraceInAWeekend/randomUtils.hlsli

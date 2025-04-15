@@ -126,7 +126,7 @@ void RayGeneration()
                 
                 float pdfRatio = payload.pdfScatter / payload.pdfValue;
                 
-                if (HasNaN(pdfRatio))
+                if (HasNaN(pdfRatio) || HasInf(pdfRatio))
                 {
                     // Nan check. As of now the only sources of those are sphere light PDF values computation
                     // formula taken from the book, which seems to cover some corner cases very poorly.
@@ -157,7 +157,7 @@ void RayGeneration()
         }
     }
 
-    uav[idx] = float4(sqrt(accumulatedColor / g_camera.samplesPerPixel), 1);
+    uav[idx] = float4(sqrt(accumulatedColor / (numSamplesX * numSamplesY)), 1);
 }
 
 [shader("intersection")]
