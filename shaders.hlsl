@@ -124,31 +124,18 @@ void RayGeneration()
                     payload.pdfValue = 1.0f;
                 }
                 
-                float pdfRatio = payload.pdfScatter / payload.pdfValue;
-                
-                if (HasNaN(pdfRatio) || HasInf(pdfRatio))
-                {
-                    // Nan check. As of now the only sources of those are sphere light PDF values computation
-                    // formula taken from the book, which seems to cover some corner cases very poorly.
-                    // 1. One source is discriminant check which sometimes oscillates around 0 (actually it
-                    // sometimes has values like -0.00001) causing zero pdf values for rays validly sampled
-                    // from its PDF meaning they could also get zero pdf from cosine. If we get zero pdf for
-                    // both cosine and hittable, we end up with zero division in the ratio.
-                    // 2. Second source is the "1 / solidAngle" part which can cause NaNs if the solid angle
-                    // is very small due to the scatter point distance to the light.
-                    // I could fix both there but decided to make generic check right here in case something
-                    // similar pops up elsewhere.
-                    // 3. Third source is related to "sqrt(1 - lightSphereRadius * lightSphereRadius / distSquared)"
-                    // part which might cause a NaN if a scatter occur inside dielectric light source. This happens
-                    // in the final scene of part I where randomly created small spheres will sometimes overlap.
-                    // If you remove that part, you will see some occasional random black pixels popping up in
-                    // the image for cases where we sample over spheres. In case of third source (overlapping spheres)
-                    // the effect will be dramatic for higher samples per pixel (try it). What we do here is, if we
-                    // find such "bad" path being taken, we just terminate it.
-                    lastColor = float3(0, 0, 0);
-                    break;
-                }
-                
+                // pdfValue is the PDF of the distribution we actually sampled from, so for a
+                // validly sampled direction it must be strictly positive and finite. If a
+                // degenerate sphere-light PDF still makes it non-positive or non-finite (e.g. the
+                // discriminant oscillating around 0 producing a 0/0, or a vanishingly small solid
+                // angle), the path's Monte Carlo weight is taken as 0 and the path dies on the next
+                // loop iteration via the gatheredAttenuation check above. The comparison also handles
+                // NaN (NaN > 0 is false) and Inf (x / Inf == 0) for free. The previously problematic
+                // inside-the-sphere NaN is now fixed at its source in RandomToSphere and
+                // HittablePDFValue, which fall back to uniform sphere sampling when the origin is
+                // inside the light sphere (e.g. overlapping spheres in the final scene of part I).
+                float pdfRatio = (payload.pdfValue > 0.0f) ? payload.pdfScatter / payload.pdfValue : 0.0f;
+
                 gatheredAttenuation *= payload.color * pdfRatio;
                 --remainingReflections;
             }

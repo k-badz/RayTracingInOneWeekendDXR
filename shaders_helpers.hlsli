@@ -175,6 +175,14 @@ float3 RandomCosineDirection(inout uint seed)
 
 float3 RandomToSphere(inout uint seed, float radius, float distanceSquared)
 {
+    if (distanceSquared <= radius * radius)
+    {
+        // Origin is inside the sphere: the solid-angle (cone) sampling is undefined
+        // (sqrt(1 - radius^2 / distanceSquared) would go negative and produce a NaN).
+        // Fall back to uniform sphere sampling, consistent with HittablePDFValue.
+        return RandomUnitVector(seed);
+    }
+
     float r1 = RandomFloat(seed);
     float r2 = RandomFloat(seed);
     float z = 1 + r2 * (sqrt(1 - radius * radius / distanceSquared) - 1);
@@ -234,18 +242,29 @@ float HittablePDFValue(float3 hittablePdfOrigin, float3 scatterDirection)
             float  lightSphereRadius = g_objects[object].radius;
 
             float3 oc = lightSphereCenter - hittablePdfOrigin;
-            float  a = dot(scatterDirection, scatterDirection);
-            float  h = dot(scatterDirection, oc);
             float  distSquared = dot(oc, oc);
-            float  c = distSquared - lightSphereRadius * lightSphereRadius;
 
-            float  discriminant = h * h - a * c;
-            if (discriminant >= 0)
+            if (distSquared > lightSphereRadius * lightSphereRadius)
             {
-                float cosThetaMax = sqrt(1 - lightSphereRadius * lightSphereRadius / distSquared);
-                float solidAngle = 2 * PI() * (1 - cosThetaMax);
+                // Origin is outside the sphere: use the exact solid-angle (cone) PDF.
+                float  a = dot(scatterDirection, scatterDirection);
+                float  h = dot(scatterDirection, oc);
+                float  c = distSquared - lightSphereRadius * lightSphereRadius;
 
-                hittablePDFValue = 1 / solidAngle;
+                float  discriminant = h * h - a * c;
+                if (discriminant >= 0)
+                {
+                    float cosThetaMax = sqrt(1 - lightSphereRadius * lightSphereRadius / distSquared);
+                    float solidAngle = 2 * PI() * (1 - cosThetaMax);
+
+                    hittablePDFValue = 1 / solidAngle;
+                }
+            }
+            else
+            {
+                // Origin is inside the sphere: cone sampling is undefined, so we
+                // sample uniformly instead (matches RandomToSphere's fallback).
+                hittablePDFValue = 1 / (4 * PI());
             }
         }
     
