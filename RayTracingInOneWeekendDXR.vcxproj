@@ -142,7 +142,7 @@
     <FxCompile>
       <ShaderModel>6.4</ShaderModel>
       <VariableName>compiledShader</VariableName>
-      <HeaderFileOutput>shader.fxh</HeaderFileOutput>
+      <HeaderFileOutput>shaders.fxh</HeaderFileOutput>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
